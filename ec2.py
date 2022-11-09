@@ -34,13 +34,8 @@ def Get_Image(ec2_client):
                     'ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*',
                 ]
             },
-            # {'Name': 'owner-alias',
-            # 'Values': [
-            #     'amazon',
-            #     ]
-            # },   
         ],
-        Owners=['099720109477']
+        Owners=['099720109477'] # This is the account # of the Ubuntu AMI's owner
     )
     ec2_image = boto3.resource('ec2')
     AMI = ec2_image.Image(images['Images'][0]['ImageId']) # this command will find the 1st image on the list of available current EC2 image ID's 
