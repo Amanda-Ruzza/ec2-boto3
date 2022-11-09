@@ -1,5 +1,28 @@
 import boto3
 
+
+#Create a variable for the VPC name
+#add the subnet name
+subnet_name = 'SecurityVPC-subnet-private1-us-east-1a'
+
+ec2_client = boto3.client('ec2')
+print('Subnets:')
+print('-------')
+sn_all = ec2_client.describe_subnets() #this collects all the subnets
+
+for sn in sn_all['Subnets'] :
+    try:
+        print(sn['Tags'])
+        for tag in sn['Tags']:
+            if tag['Key']== 'Name': 
+                if tag['Value'] == subnet_name:
+                    subnet_id = sn['SubnetId']
+    except:
+        print("No Tags")
+
+print(subnet_name + ":" + subnet_id)
+
+
 DRYRUN=False #set this to 'true' if you just want to do a dry run and not actually even launch and terminate the instance
 ec2_client = boto3.client('ec2')
 
@@ -9,15 +32,16 @@ def Get_Image(ec2_client):
             {
                 'Name': 'name',
                 'Values':[
-                    'amzn-ami-hvm*',
+                    'ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*',
                 ]
             },
-            {'Name': 'owner-alias',
-            'Values': [
-                'amazon',
-                ]
-            },
+            # {'Name': 'owner-alias',
+            # 'Values': [
+            #     'amazon',
+            #     ]
+            # },   
         ],
+        Owners=['099720109477']
     )
     ec2_image = boto3.resource('ec2')
     AMI = ec2_image.Image(images['Images'][0]['ImageId']) # this command will find the 1st image on the list of available current EC2 image ID's 
@@ -28,9 +52,10 @@ def Start_Ec2(AMI, ec2_client):
         print(AMI.image_id) 
         instance = ec2_client.run_instances(    # this command will create the ec2 instance based on the image ID printed on the previous command
             ImageId=AMI.image_id,
-            InstanceType='t2.micro',
+            InstanceType='t2.small',
             MaxCount=1,
             MinCount=1,
+            SubnetId=subnet_id,
             DryRun=DRYRUN
         )
         ec2_instance = boto3.resource('ec2')
