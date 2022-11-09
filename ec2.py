@@ -1,8 +1,7 @@
 import boto3
 
+#Create a variable for the Subnet Name
 
-#Create a variable for the VPC name
-#add the subnet name
 subnet_name = 'SecurityVPC-subnet-private1-us-east-1a'
 
 ec2_client = boto3.client('ec2')
